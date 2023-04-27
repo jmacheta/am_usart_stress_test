@@ -54,7 +54,7 @@ void perform_test(SerialConnection& c, std::size_t bytes_to_send) {
     std::cout << "checksum: " << checksum << "\n";
 
     c.clear();
-    // c.write({reinterpret_cast<std::byte const*>(to_send.data()), to_send.size()});
+    c.write({reinterpret_cast<std::byte const*>(to_send.data()), to_send.size()});
 
     auto wait_for_response_end = std::chrono::system_clock::now() + response_timeout;
 
