@@ -36,8 +36,7 @@ bool SerialConnection::open() {
         ::DCB dcb{};
 
         if (0 == ::GetCommState(impl->handle, &dcb)) {
-            close();
-            return false;
+            goto close_and_fail;
         }
 
         dcb.BaudRate = baudrate;
@@ -46,8 +45,7 @@ bool SerialConnection::open() {
         dcb.StopBits = ONESTOPBIT;
 
         if (0 == ::SetCommState(impl->handle, &dcb)) {
-            close();
-            return false;
+            goto close_and_fail;
         }
     }
     // Clear inout buffers
@@ -55,6 +53,10 @@ bool SerialConnection::open() {
 
 
     return true;
+
+close_and_fail:
+    close();
+    return false;
 }
 
 
