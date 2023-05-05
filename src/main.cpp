@@ -167,6 +167,7 @@ int main(int argc, char** argv) {
         fmt::print("connection opened\n");
     }
 
+    auto successes = 0;
 
     for (auto i = 0; i != count; ++i) {
         fmt::print(when_colored(fmt::color::aqua), "Test {}/{}:\n", i + 1, count);
