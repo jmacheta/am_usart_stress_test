@@ -101,3 +101,8 @@ std::size_t SerialConnection::write(std::span<std::byte const> data) {
     }
     return static_cast<std::size_t>(written);
 }
+
+
+bool enable_std_colored_output() {
+    return true; // todo but true in most linux terminals
+}

@@ -11,7 +11,6 @@
 #include <random>
 #include <thread>
 #include <vector>
-
 #ifndef APP_VERSION
 #    define APP_VERSION "0.0.0"
 #endif
@@ -24,17 +23,27 @@ constexpr auto response_timeout         = 1s;
 constexpr auto response_expected_length = 4;
 
 
-bool verbose = false;
+bool verbose     = false;
+bool colorless_mode = true;
+
+
+auto when_colored(auto&& color) {
+    if (colorless_mode) {
+        return fmt::text_style();
+    } else {
+        return fg(color);
+    }
+}
 
 
 void on_app_finished() {
-    fmt::print(fg(fmt::color::lemon_chiffon), "======= USART stress test application end =======");
+    fmt::print(when_colored(fmt::color::lemon_chiffon), "======= USART stress test application end =======");
 }
 
 
 int fail_with_reason(std::string_view reason) {
-    fmt::print(fg(fmt::color::aqua), "Test finished with result: ");
-    fmt::print(fg(fmt::color::indian_red), "FAIL - {}\n", reason);
+    fmt::print(when_colored(fmt::color::aqua), "Test finished with result: ");
+    fmt::print(when_colored(fmt::color::indian_red), "FAIL - {}\n", reason);
     return 0;
 }
 
@@ -83,16 +92,18 @@ int perform_test(SerialConnection& c, std::size_t bytes_to_send) {
         if (received_checksum != checksum) {
             return fail_with_reason(fmt::format("Invalid checksum (expected {:#x}, got {:#x})", checksum, received_checksum));
         } else {
-            fmt::print(fg(fmt::color::aqua), "Test finished with result: ");
-            fmt::print(fg(fmt::color::lime_green), "PASS\n");
+            fmt::print(when_colored(fmt::color::aqua), "Test finished with result: ");
+            fmt::print(when_colored(fmt::color::lime_green), "PASS\n");
         }
     }
     return 1;
 }
 
 int main(int argc, char** argv) {
-    fmt::print(fg(fmt::color::lemon_chiffon), "======= USART stress test application =======\n");
+    colorless_mode = !enable_std_colored_output();
+    fmt::print(when_colored(fmt::color::lemon_chiffon), "======= USART stress test application =======\n");
     std::atexit(on_app_finished);
+
 
     argparse::ArgumentParser program("usart_stress_test", APP_VERSION);
 
@@ -115,25 +126,25 @@ int main(int argc, char** argv) {
         count    = program.get<int>("--count");
         verbose  = program.get<bool>("--verbose");
     } catch (const std::exception& e) {
-        auto msg = fmt::format(fg(fmt::color::red), "Exception during parsing user input: {}\n", e.what());
+        auto msg = fmt::format(when_colored(fmt::color::red), "Exception during parsing user input: {}\n", e.what());
         std::cerr << msg << program << std::endl;
         return -1;
     }
 
     if (size <= 0) {
-        auto msg = fmt::format(fg(fmt::color::red), "Invalid payload size: {}\n", size);
+        auto msg = fmt::format(when_colored(fmt::color::red), "Invalid payload size: {}\n", size);
         std::cerr << msg << program << std::endl;
         return -2;
     }
 
     if (count <= 0) {
-        auto msg = fmt::format(fg(fmt::color::red), "Invalid test count: {}\n", count);
+        auto msg = fmt::format(when_colored(fmt::color::red), "Invalid test count: {}\n", count);
         std::cerr << msg << program << std::endl;
         return -2;
     }
 
     if (baudrate <= 0) {
-        auto msg = fmt::format(fg(fmt::color::red), "Invalid baudrate: {}\n", baudrate);
+        auto msg = fmt::format(when_colored(fmt::color::red), "Invalid baudrate: {}\n", baudrate);
         std::cerr << msg << program << std::endl;
         return -2;
     }
@@ -148,7 +159,7 @@ int main(int argc, char** argv) {
     SerialConnection connection(port, baudrate);
 
     if (!connection.open()) {
-        auto msg = fmt::format(fg(fmt::color::red), "Opening serial port: {} failed - make sure that no other application uses this serial port", connection.port);
+        auto msg = fmt::format(when_colored(fmt::color::red), "Opening serial port: {} failed - make sure that no other application uses this serial port", connection.port);
         std::cerr << msg << std::endl;
         return -3;
     }
@@ -158,15 +169,19 @@ int main(int argc, char** argv) {
 
 
     auto successes = 0;
+    if (successes > 0) {
+        fmt::print(when_colored(fmt::color::lime_green), "\n\t\t{}/{} TESTS PASSED\n", successes, count);
+    }
+
     for (auto i = 0; i != count; ++i) {
-        fmt::print(fg(fmt::color::aqua), "Test {}/{}:\n", i + 1, count);
+        fmt::print(when_colored(fmt::color::aqua), "Test {}/{}:\n", i + 1, count);
         successes += perform_test(connection, size);
     }
 
     if (count == successes) {
-        fmt::print(fg(fmt::color::lime_green), "\n\t\tALL TESTS PASSED\n");
+        fmt::print(when_colored(fmt::color::lime_green), "\n\t\tALL TESTS PASSED\n");
     } else {
-        fmt::print(fg(fmt::color::indian_red), "\n\t\t{}/{} TESTS FAILED\n", count - successes, count);
+        fmt::print(when_colored(fmt::color::indian_red), "\n\t\t{}/{} TESTS FAILED\n", count - successes, count);
     }
 
     return 0;

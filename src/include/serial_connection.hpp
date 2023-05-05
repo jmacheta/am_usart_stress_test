@@ -30,4 +30,9 @@ class SerialConnection {
     std::unique_ptr<SerialConnectionImpl> impl;
 };
 
+
+bool enable_std_colored_output();
+
+
+
 #endif

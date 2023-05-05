@@ -87,3 +87,16 @@ std::size_t SerialConnection::write(std::span<std::byte const> data) {
     ::WriteFile(impl->handle, data.data(), static_cast<::DWORD>(data.size_bytes()), &written, nullptr);
     return static_cast<std::size_t>(written);
 }
+
+
+bool enable_std_colored_output() {
+    DWORD caps;
+    if (!GetConsoleMode(GetStdHandle(STD_OUTPUT_HANDLE), &caps)) {
+        return false;
+    }
+    if (!SetConsoleMode(GetStdHandle(STD_OUTPUT_HANDLE), caps | ENABLE_VIRTUAL_TERMINAL_PROCESSING | ENABLE_PROCESSED_OUTPUT)) {
+        return false;
+    }
+    
+    return true;
+}
