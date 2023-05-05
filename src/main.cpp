@@ -23,7 +23,7 @@ constexpr auto response_timeout         = 1s;
 constexpr auto response_expected_length = 4;
 
 
-bool verbose     = false;
+bool verbose        = false;
 bool colorless_mode = true;
 
 
@@ -167,11 +167,6 @@ int main(int argc, char** argv) {
         fmt::print("connection opened\n");
     }
 
-
-    auto successes = 0;
-    if (successes > 0) {
-        fmt::print(when_colored(fmt::color::lime_green), "\n\t\t{}/{} TESTS PASSED\n", successes, count);
-    }
 
     for (auto i = 0; i != count; ++i) {
         fmt::print(when_colored(fmt::color::aqua), "Test {}/{}:\n", i + 1, count);
