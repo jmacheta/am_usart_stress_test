@@ -4,8 +4,8 @@ add_compile_options(-Os)
 
 include(FetchContent)
 
-FetchContent_Declare(fmt URL https://github.com/fmtlib/fmt/releases/download/9.1.0/fmt-9.1.0.zip)
-FetchContent_Declare(argparse URL https://github.com/p-ranav/argparse/archive/refs/tags/v2.9.zip)
+FetchContent_Declare(fmt URL https://github.com/fmtlib/fmt/archive/refs/tags/11.0.2.zip)
+FetchContent_Declare(argparse URL https://github.com/p-ranav/argparse/archive/refs/tags/v3.1.zip)
 
 FetchContent_MakeAvailable(fmt argparse)
 
